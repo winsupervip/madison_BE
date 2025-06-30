@@ -12,7 +12,7 @@ import { ProgressFileService } from './progressFile.service';
 export class ProgressFileController {
   constructor(private service: ProgressFileService) {}
 
-  @Post('upload')
+  @Post('uploadImage')
   @UseInterceptors(FileInterceptor('image'))
   uploadImage(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
@@ -29,7 +29,7 @@ export class ProgressFileController {
     return this.service.uploadImage(file);
   }
 
-  @Post('mock-openai')
+  @Post('detectedBrand/mock-openai')
   @UseInterceptors(FileInterceptor('video'))
   async mockOpenAIApi(
     @UploadedFile() video: Express.Multer.File,

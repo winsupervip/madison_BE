@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import * as ffmpeg from 'fluent-ffmpeg';
+import { spawn } from 'child_process';
+import * as ffmpegPath from 'ffmpeg-static';
 import * as fs from 'fs';
 import { join } from 'path';
 
 @Injectable()
 export class ProgressFileService {
   uploadImage(file: Express.Multer.File) {
-    const uploadDir = join(__dirname, '../../uploads');
+    const uploadDir = join(__dirname, '../../uploads/images');
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
@@ -21,72 +22,117 @@ export class ProgressFileService {
     imageId: string,
     duration: number,
   ) {
-    const uploadDir = join(__dirname, '../../uploads');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
+    const videoDir = join(__dirname, '../../uploads/videos');
+    if (!fs.existsSync(videoDir)) {
+      fs.mkdirSync(videoDir, { recursive: true });
     }
-    const videoPath = join(uploadDir, video.originalname);
+    const videoPath = join(videoDir, video.originalname);
     fs.writeFileSync(videoPath, video.buffer);
 
-    const framesDir = join(uploadDir, `${imageId}_frames`);
+    const framesDir = join(
+      __dirname,
+      `../../uploads/frames`,
+      video.originalname,
+    );
     if (!fs.existsSync(framesDir)) {
       fs.mkdirSync(framesDir, { recursive: true });
     }
 
-    // Sử dụng ffmpeg để tách frame
-    // Lưu frame dưới dạng: {imageId}_frame_%03d.jpg
-    await new Promise<void>((resolve, reject) => {
-      ffmpeg(videoPath)
-        .output(join(framesDir, `${imageId}_frame_%03d.jpg`))
-        .outputOptions([
-          `-vf fps=1/${duration}`, // Tách 1 frame mỗi {duration} giây
-        ])
-        .on('end', () => resolve())
-        .on('error', (err) =>
-          reject(
-            new Error(
-              typeof err === 'string' ? err : err?.message || 'Unknown error',
-            ),
-          ),
-        )
-        .run();
-    });
+    // Tách frame từ video và lưu vào thư mục uploads/frames
+    await this.extractFrames(
+      videoPath,
+      framesDir,
 
-    // Lấy danh sách frame đã tách
-    const frames = fs
-      .readdirSync(framesDir)
-      .filter((f) => f.endsWith('.jpg'))
-      .map((f, idx) => ({
-        id: `${imageId}_frame_${idx}`,
-        path: `/uploads/${imageId}_frames/${f}`,
-        match: false, // initialize match property
-      }));
+      duration,
+    );
+    const frames = this.getDurationFromImageId(
+      imageId,
+      framesDir,
+      video.originalname,
+    );
+    return frames;
+  }
+
+  private extractFrames(
+    videoPath: string,
+    framesPath: string,
+    duration: number,
+  ): Promise<void> {
+    return new Promise((resolve, reject) => {
+      // Sử dụng ffmpeg để tách frame mỗi 'duration' giây
+      if (!ffmpegPath) {
+        return reject(new Error('ffmpeg-static binary not found'));
+      }
+      const outputPattern = join(framesPath, 'clip_%03d.MOV');
+      const ffmpeg = spawn(ffmpegPath as unknown as string, [
+        '-i',
+        videoPath,
+        '-c',
+        'copy',
+        '-map',
+        '0',
+        '-segment_time',
+        duration.toString(),
+        '-f',
+        'segment',
+        outputPattern,
+      ]);
+      ffmpeg.stderr.on('data', (data) => {
+        console.error(`ffmpeg stderr: ${data}`);
+      });
+
+      ffmpeg.on('close', (code) => {
+        if (code === 0) {
+          resolve();
+        } else {
+          reject(new Error(`ffmpeg exited with code ${code}`));
+        }
+      });
+    });
+  }
+  getImageBuffer(imageId): Buffer {
     // Kiểm tra imageId, lấy ảnh từ imageId
-    const imagePath = join(uploadDir, imageId);
+    const imagePath = join(__dirname, '../../uploads/images', imageId);
     if (!fs.existsSync(imagePath)) {
       throw new Error(`Image with id ${imageId} does not exist`);
     }
     const imageBuffer = fs.readFileSync(imagePath);
+    return imageBuffer;
+  }
 
-    // Giả lập gọi OpenAI API để kiểm tra ảnh có trong từng frame không
+  getDurationFromImageId(
+    imageId: string,
+    framePath: string,
+    videoName: string,
+  ) {
+    // Lấy danh sách frame đã tách
+    const frames = fs
+      .readdirSync(framePath)
+      .filter((f) => f.startsWith('clip_') && f.endsWith('.MOV'))
+      .map((f, idx) => ({
+        id: `${videoName}_frame_${idx}`,
+        path: `/uploads/frames/${videoName}/${f}`,
+        match: false, // initialize match property
+        duration: null as number | null, // initialize duration property
+      }));
+
+    const imageBuffer = this.getImageBuffer(imageId);
 
     for (const frame of frames) {
-      // Đọc buffer của frame
-      const framePath = join(
-        uploadDir,
-        `${imageId}_frames`,
-        frame.path.split('/').pop()!,
-      );
-      const frameBuffer = fs.readFileSync(framePath);
+      // Giả lập gọi OpenAI API: kiểm tra xem image có trong frame không
 
-      // Giả lập so sánh ảnh (ở đây chỉ so sánh kích thước, thực tế sẽ gọi API)
-      if (imageBuffer.length === frameBuffer.length) {
-        frame.match = true; // Ảnh giống nhau (giả lập)
+      // Giả lập: nếu imageBuffer.length % (idx+1) === 0 thì coi như match
+      const frameIndex = parseInt(
+        frame.path.match(/_(\d+)\.MOV$/)?.[1] || '0',
+        10,
+      );
+      if (imageBuffer.length % (frameIndex + 1) === 0) {
+        frame.match = true;
+        frame.duration = frameIndex; // duration tính bằng giây (giả lập)
       } else {
         frame.match = false;
+        frame.duration = 0;
       }
-      // Nếu gọi OpenAI API, bạn sẽ gửi imageBuffer và frameBuffer lên để kiểm tra
-      // và gán kết quả vào frame.match
     }
     return frames;
   }
