@@ -68,7 +68,7 @@ export class ConfigService {
       ENV: Joi.string()
         .valid('production', 'testing', 'development')
         .default('development'),
-      DATABASE_DATABASE: Joi.string().default('myapp_db'),
+      DATABASE_DATABASE: Joi.string().default('postgres'),
       DATABASE_HOST: Joi.string().default('34.126.103.20'),
       DATABASE_USER: Joi.string().required(),
       DATABASE_PASSWORD: Joi.string().required(),
