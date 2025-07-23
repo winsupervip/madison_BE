@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ManagerController } from './manager.controller';
 import { ManagerEntity } from './manager.entity';
@@ -10,7 +11,7 @@ import { ManagerNotificationModule } from './manager_notification/managerNotific
     TypeOrmModule.forFeature([ManagerEntity]),
     ManagerNotificationModule,
   ],
-  providers: [ManagerService],
+  providers: [ManagerService, JwtService],
   controllers: [ManagerController],
 })
 export class ManagerModule {}
