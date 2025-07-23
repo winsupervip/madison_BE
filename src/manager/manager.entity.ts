@@ -5,6 +5,7 @@ export class ManagerEntity {
   @PrimaryGeneratedColumn() id: string;
   @Column() name: string;
   @Column() phone: string;
-  @Column() email: string;
+  @Column({ nullable: true }) email: string;
   @Column() password: string;
+  @Column() username: string;
 }

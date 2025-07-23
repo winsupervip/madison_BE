@@ -1,6 +1,7 @@
-import { Controller } from '@nestjs/common';
-import { Crud } from '@nestjsx/crud';
+import { Body, Controller, Post, ValidationPipe } from '@nestjs/common';
+import { Crud, CrudRequest, ParsedRequest } from '@dataui/crud';
 import { RouteMetadata } from 'nestjs-gis';
+import { AuthCredentialsDto } from '../dto/auth-credentials.dto';
 import { ManagerEntity } from './manager.entity';
 import { ManagerService } from './manager.service';
 
@@ -18,4 +19,11 @@ import { ManagerService } from './manager.service';
 @Controller('rest/manager')
 export class ManagerController {
   constructor(private service: ManagerService) {}
+  @Post()
+  createGuest(
+    @Body(ValidationPipe) authCredentialsDto: AuthCredentialsDto,
+    @ParsedRequest() req: CrudRequest,
+  ) {
+    return this.service.createOne(req, authCredentialsDto);
+  }
 }

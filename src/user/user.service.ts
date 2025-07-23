@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CrudRequest } from '@nestjsx/crud';
-import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
+import { CrudRequest } from '@dataui/crud';
+import { TypeOrmCrudService } from '@dataui/crud-typeorm';
+import { DeepPartial } from 'typeorm';
+import { hash } from '../util/auth.util';
 import { UserEntity } from './user.entity';
 
 @Injectable()
@@ -9,7 +11,22 @@ export class UserService extends TypeOrmCrudService<UserEntity> {
   constructor(@InjectRepository(UserEntity) repo) {
     super(repo);
   }
-  recoverOne(req: CrudRequest): Promise<void | UserEntity> {
-    return this.repo.recover(req.parsed.paramsFilter[0].value);
+
+  createOne(
+    req: CrudRequest,
+    dto: DeepPartial<UserEntity>,
+  ): Promise<UserEntity> {
+    const entity = this.prepareEntityBeforeSave(dto, req.parsed);
+    entity.password = hash(entity.password);
+    return this.repo.save(entity);
+  }
+  createGuest(dto: DeepPartial<UserEntity>): Promise<UserEntity> {
+    const entity = { ...dto } as UserEntity;
+    entity.password = hash(entity.password);
+    return this.repo.save(entity);
+  }
+
+  getOne(req: CrudRequest): Promise<UserEntity> {
+    return this.getOneOrFail(req);
   }
 }

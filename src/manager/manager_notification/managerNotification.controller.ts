@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { Crud } from '@nestjsx/crud';
+import { Crud } from '@dataui/crud';
 import { RouteMetadata } from 'nestjs-gis';
 import { ManagerNotificationEntity } from './managerNotification.entity';
 import { ManagerNotificationService } from './managerNotification.service';

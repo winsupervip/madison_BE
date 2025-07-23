@@ -1,10 +1,9 @@
-import { Controller } from '@nestjs/common';
-import { Crud } from '@nestjsx/crud';
-import { RouteMetadata } from 'nestjs-gis';
+import { Crud } from '@dataui/crud';
+import { Body, Controller, Post, ValidationPipe } from '@nestjs/common';
+import { AuthCredentialsDto } from '../dto/auth-credentials.dto';
 import { UserEntity } from './user.entity';
 import { UserService } from './user.service';
 
-@RouteMetadata()
 @Crud({
   model: { type: UserEntity },
   params: {
@@ -18,4 +17,8 @@ import { UserService } from './user.service';
 @Controller('rest/user')
 export class UserController {
   constructor(private service: UserService) {}
+  @Post('guest')
+  createGuest(@Body(ValidationPipe) authCredentialsDto: AuthCredentialsDto) {
+    return this.service.createGuest(authCredentialsDto);
+  }
 }

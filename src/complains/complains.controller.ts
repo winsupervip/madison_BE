@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { Crud } from '@nestjsx/crud';
+import { Crud } from '@dataui/crud';
 import { RouteMetadata } from 'nestjs-gis';
 import { ComplainsEntity } from './complains.entity';
 import { ComplainsService } from './complains.service';
