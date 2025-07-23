@@ -43,7 +43,12 @@ export class ManagerService extends TypeOrmCrudService<ManagerEntity> {
     });
 
     if (user && compareSync(password, user.password)) {
-      let result;
+      const result = {
+        id: '',
+        name: '',
+        phone: '',
+        email: '',
+      };
 
       result.id = user.id;
       result.name = user.name;

@@ -27,7 +27,7 @@ import { ManagerService } from './manager.service';
 @Controller('rest/manager')
 export class ManagerController {
   constructor(private service: ManagerService) {}
-  @UseGuards(JwtAuthGuard)
+
   @Post('login')
   login(
     @Body('username') username: string,
@@ -35,11 +35,13 @@ export class ManagerController {
   ) {
     return this.service.login(username, password);
   }
+
   @UseGuards(JwtAuthGuard)
   @Get('refreshtoken')
   refreshToken(@ParsedRequest() req) {
     return this.service.refreshToken(req.user.userId);
   }
+
   @Post('createManager')
   createManager(@Body(ValidationPipe) authCredentialsDto: AuthCredentialsDto) {
     return this.service.createManager(authCredentialsDto);

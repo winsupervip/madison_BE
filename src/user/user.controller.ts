@@ -8,9 +8,9 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'nestjs-gis';
+import { AuthCredentialsDto } from '../dto/auth-credentials.dto';
 import { UserEntity } from './user.entity';
 import { UserService } from './user.service';
-import { AuthCredentialsDto } from '../dto/auth-credentials.dto';
 
 @Crud({
   model: { type: UserEntity },
@@ -28,7 +28,6 @@ import { AuthCredentialsDto } from '../dto/auth-credentials.dto';
 export class UserController {
   constructor(private service: UserService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Post('login')
   login(
     @Body('username') username: string,
@@ -41,6 +40,7 @@ export class UserController {
   refreshToken(@ParsedRequest() req) {
     return this.service.refreshToken(req.user.userId);
   }
+
   @Post('createUser')
   createUser(@Body(ValidationPipe) authCredentialsDto: AuthCredentialsDto) {
     return this.service.createUser(authCredentialsDto);

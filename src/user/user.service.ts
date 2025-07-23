@@ -40,9 +40,13 @@ export class UserService extends TypeOrmCrudService<UserEntity> {
         username,
       },
     });
-
     if (user && compareSync(password, user.password)) {
-      let result;
+      const result = {
+        id: '',
+        name: '',
+        phone: '',
+        email: '',
+      };
 
       result.id = user.id;
       result.name = user.name;
