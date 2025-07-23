@@ -15,9 +15,6 @@ export class AuthCredentialsDto {
   })
   password: string;
 
-  @IsString({ message: 'Tên hiển thị không được để trống' })
-  displayName: string;
-
   @IsNumberString(
     {},
     {
