@@ -1,11 +1,20 @@
-import { Crud } from '@dataui/crud';
-import { Body, Controller, Post, ValidationPipe } from '@nestjs/common';
-import { AuthCredentialsDto } from '../dto/auth-credentials.dto';
+import { Crud, ParsedRequest } from '@dataui/crud';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  UseGuards,
+  ValidationPipe,
+} from '@nestjs/common';
+import { JwtAuthGuard } from 'nestjs-gis';
 import { UserEntity } from './user.entity';
 import { UserService } from './user.service';
+import { AuthCredentialsDto } from '../dto/auth-credentials.dto';
 
 @Crud({
   model: { type: UserEntity },
+  query: { exclude: ['password', 'username'] },
   params: {
     id: {
       primary: true,
@@ -13,12 +22,27 @@ import { UserService } from './user.service';
       field: 'id',
     },
   },
+  routes: { exclude: ['createManyBase', 'createOneBase', 'deleteOneBase'] },
 })
 @Controller('rest/user')
 export class UserController {
   constructor(private service: UserService) {}
-  @Post('guest')
-  createGuest(@Body(ValidationPipe) authCredentialsDto: AuthCredentialsDto) {
-    return this.service.createGuest(authCredentialsDto);
+
+  @UseGuards(JwtAuthGuard)
+  @Post('login')
+  login(
+    @Body('username') username: string,
+    @Body('password') password: string,
+  ) {
+    return this.service.login(username, password);
+  }
+  @UseGuards(JwtAuthGuard)
+  @Get('refreshtoken')
+  refreshToken(@ParsedRequest() req) {
+    return this.service.refreshToken(req.user.userId);
+  }
+  @Post('createUser')
+  createUser(@Body(ValidationPipe) authCredentialsDto: AuthCredentialsDto) {
+    return this.service.createUser(authCredentialsDto);
   }
 }
