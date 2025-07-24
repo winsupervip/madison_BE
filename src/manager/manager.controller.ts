@@ -19,7 +19,7 @@ import { ManagerService } from './manager.service';
   params: {
     id: {
       primary: true,
-      type: 'string',
+      type: 'number',
       field: 'id',
     },
   },

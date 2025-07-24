@@ -18,7 +18,7 @@ import { UserService } from './user.service';
   params: {
     id: {
       primary: true,
-      type: 'string',
+      type: 'number',
       field: 'id',
     },
   },

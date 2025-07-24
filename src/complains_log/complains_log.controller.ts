@@ -10,7 +10,7 @@ import { ComplainsLogService } from './complains_log.service';
   params: {
     id: {
       primary: true,
-      type: 'string',
+      type: 'number',
       field: 'id',
     },
   },

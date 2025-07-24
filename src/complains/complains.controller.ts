@@ -1,5 +1,5 @@
-import { Controller } from '@nestjs/common';
 import { Crud } from '@dataui/crud';
+import { Controller } from '@nestjs/common';
 import { RouteMetadata } from 'nestjs-gis';
 import { ComplainsEntity } from './complains.entity';
 import { ComplainsService } from './complains.service';
@@ -10,7 +10,7 @@ import { ComplainsService } from './complains.service';
   params: {
     id: {
       primary: true,
-      type: 'string',
+      type: 'number',
       field: 'id',
     },
   },
