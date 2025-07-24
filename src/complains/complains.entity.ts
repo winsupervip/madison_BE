@@ -4,9 +4,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { ComplainsLogEntity } from '../complains_log/complains_log.entity';
 import { UserEntity } from '../user/user.entity';
 
 export enum ComplainsStatusEnum {
@@ -32,4 +34,9 @@ export class ComplainsEntity {
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   attachment_url: string;
+
+  @OneToOne(() => ComplainsLogEntity, (e) => e.id, {
+    cascade: ['insert'],
+  })
+  log: ComplainsLogEntity;
 }

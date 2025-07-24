@@ -14,6 +14,18 @@ import { ComplainsService } from './complains.service';
       field: 'id',
     },
   },
+  query: {
+    join: {
+      log: {},
+      user: {},
+    },
+    sort: [
+      {
+        field: 'id',
+        order: 'ASC',
+      },
+    ],
+  },
 })
 @Controller('rest/complains')
 export class ComplainsController {
