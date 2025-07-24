@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { JwtModule, JwtService } from '@nestjs/jwt';
+import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { jwtConstants } from '../strategy/constants';
 import { ManagerController } from './manager.controller';
@@ -16,7 +16,7 @@ import { ManagerNotificationModule } from './manager_notification/managerNotific
     }),
     ManagerNotificationModule,
   ],
-  providers: [ManagerService, JwtService],
+  providers: [ManagerService],
   controllers: [ManagerController],
 })
 export class ManagerModule {}
