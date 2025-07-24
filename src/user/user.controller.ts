@@ -50,8 +50,6 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Get('isAccess')
   isAccess(@Req() req) {
-    console.log(req);
-
     const user = req.user;
 
     if (user.role !== 'user') {
