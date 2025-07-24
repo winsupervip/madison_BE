@@ -48,6 +48,7 @@ export class ManagerService extends TypeOrmCrudService<ManagerEntity> {
         name: '',
         phone: '',
         email: '',
+        role: 'manager',
       };
 
       result.id = user.id;

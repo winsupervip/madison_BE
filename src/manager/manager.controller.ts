@@ -2,8 +2,10 @@ import { Crud, ParsedRequest } from '@dataui/crud';
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   Post,
+  Req,
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
@@ -45,5 +47,21 @@ export class ManagerController {
   @Post('createManager')
   createManager(@Body(ValidationPipe) authCredentialsDto: AuthCredentialsDto) {
     return this.service.createManager(authCredentialsDto);
+  }
+  @UseGuards(JwtAuthGuard)
+  @Get('isAccess')
+  isAccess(@Req() req) {
+    console.log(req);
+
+    const user = req.user;
+
+    if (user.role !== 'manager') {
+      throw new ForbiddenException('Bạn không có quyền truy cập');
+    }
+
+    return {
+      message: 'Truy cập hợp lệ',
+      user,
+    };
   }
 }

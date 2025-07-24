@@ -46,6 +46,7 @@ export class UserService extends TypeOrmCrudService<UserEntity> {
         name: '',
         phone: '',
         email: '',
+        role: 'user',
       };
 
       result.id = user.id;
