@@ -35,7 +35,7 @@ export class ComplainsEntity {
   @Column({ type: 'varchar', length: 255, nullable: true })
   attachment_url: string;
 
-  @OneToOne(() => ComplainsLogEntity, (e) => e.id, {
+  @OneToOne(() => ComplainsLogEntity, (e) => e.complain, {
     cascade: ['insert'],
   })
   log: ComplainsLogEntity;
