@@ -32,3 +32,5 @@ cd resident_management
 npm install
 npm run start:dev
 ```
+
+By default, the backend runs on port 3000
