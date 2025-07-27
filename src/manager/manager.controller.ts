@@ -51,8 +51,6 @@ export class ManagerController {
   @UseGuards(JwtAuthGuard)
   @Get('isAccess')
   isAccess(@Req() req) {
-    console.log(req);
-
     const user = req.user;
 
     if (user.role !== 'manager') {
